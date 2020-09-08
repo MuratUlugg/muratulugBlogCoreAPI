@@ -27,12 +27,25 @@ namespace muratulugBlogCore.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Api cross-orgin resource sharing added (uzak sunucular ile düzenleme ve policy işlemleri )
+            services.AddCors(opts =>
+            {
+            opts.AddDefaultPolicy(x => 
+               {
+                  x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials(); // Tüm orjin tüm header tüm methodlara ve tüm kimlik doğrulamalara şimdilik izin ver . 
+               });
+            });
+
+            //servis entity framework database ile bağlantı  .
             services.AddDbContext<muratulugBlogDbContext>(opts => 
             {
                 opts.UseSqlServer(Configuration["ConnectionStrings:DefaultSqlConnectionString"]);
             });
 
+            //default
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+
             //Swagger için önce nugget (swashbuckleAspNetCore) eklendi sonrasında addSwaggerGen 
             services.AddSwaggerGen( c => 
             {
@@ -51,13 +64,16 @@ namespace muratulugBlogCore.API
             {
                 app.UseHsts();
             }
-            //Swagger start
+            //Swagger başla
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
-            //Swagger End
+            //Swagger bitir
+            
+            app.UseCors(); // Cors kullanmak için
+            app.UseStaticFiles(); // Resimler veya herhangi bir statik dosya ile çalışabilmek için 
             app.UseHttpsRedirection();
             app.UseMvc();
         }
