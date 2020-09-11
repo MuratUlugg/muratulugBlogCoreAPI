@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using muratulugBlogCore.API.Models;
+using muratulugBlogCore.API.Responses;
 
 namespace muratulugBlogCore.API.Controllers
 {
@@ -27,6 +28,44 @@ namespace muratulugBlogCore.API.Controllers
             return _context.Article;
         }
 
+        [HttpGet("{page}/{pageSize}")]
+        public IActionResult GetArticle(int page = 1, int pageSize = 5) 
+        {
+            try
+            {
+                IQueryable<Article> query;
+                query = _context.Article.Include(x => x.Category).Include(y => y.Comment).OrderByDescending(z => z.PublishDate);
+                int totalCount = query.Count();
+                // 5 * 1-1 = 0
+                // 5 * 2-1 = 5
+                var articlesResponse = query.Skip((pageSize * (page - 1))).Take(pageSize).ToList().Select(x => new ArticleResponse()
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    ContentMain = x.ContentMain,
+                    ContentSummary = x.ContentSummary,
+                    Picture = x.Picture,
+                    ViewCount = x.ViewCount,
+                    CommentCount = x.Comment.Count,
+                    Category = new CategoryResponse() { Id = x.Category.Id, Name = x.Category.Name }
+                }); ;  // Gelen kaydı atla getir
+
+                var result = new
+                {
+                    TotalCount = totalCount,
+                    Article = articlesResponse
+                };
+
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+           
+        }
+
+
         // GET: api/Articles/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetArticle([FromRoute] int id)
@@ -45,6 +84,7 @@ namespace muratulugBlogCore.API.Controllers
 
             return Ok(article);
         }
+
 
         // PUT: api/Articles/5
         [HttpPut("{id}")]

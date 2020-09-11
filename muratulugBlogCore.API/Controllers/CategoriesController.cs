@@ -24,6 +24,7 @@ namespace muratulugBlogCore.API.Controllers
         [HttpGet]
         public IEnumerable<Category> GetCategory()
         {
+            System.Threading.Thread.Sleep(3000);
             return _context.Category;
         }
 
