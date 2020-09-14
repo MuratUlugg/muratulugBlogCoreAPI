@@ -31,6 +31,7 @@ namespace muratulugBlogCore.API.Controllers
         [HttpGet("{page}/{pageSize}")]
         public IActionResult GetArticle(int page = 1, int pageSize = 5) 
         {
+            System.Threading.Thread.Sleep(1000);
             try
             {
                 IQueryable<Article> query;
@@ -68,21 +69,35 @@ namespace muratulugBlogCore.API.Controllers
 
         // GET: api/Articles/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetArticle([FromRoute] int id)
+        public IActionResult GetArticle([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var article = _context.Article.Include(x => x.Category).Include(y => y.Comment).FirstOrDefault(z => z.Id == id);
+
+                if (article == null)
+                {
+                    return NotFound();
+                }
+                ArticleResponse articleResponse = new ArticleResponse()
+                {
+                    Id = article.Id,
+                    Title = article.Title,
+                    ContentMain = article.ContentMain,
+                    ContentSummary = article.ContentSummary,
+                    Picture = article.Picture,
+                    PublishDate = article.PublishDate,
+                    ViewCount = article.ViewCount,
+                    Category = new CategoryResponse() { Id = article.Category.Id, Name = article.Category.Name },
+                    CommentCount = article.Comment.Count
+                };
+
+                return Ok(articleResponse);
             }
-
-            var article = await _context.Article.FindAsync(id);
-
-            if (article == null)
+            catch (System.Exception ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
-
-            return Ok(article);
         }
 
 
