@@ -66,11 +66,37 @@ namespace muratulugBlogCore.API.Controllers
            
         }
 
+        //localhost:port/api/article/GetArticleWithCategory/12/1/5
+        [HttpGet]
+        [Route("GetArticleWithCategory/{id}/{page}/{pageSize}")]   // Tipe göre değil method'da göre erişim için route kullanıldı . 
+        public IActionResult GetArticleWithCategory (int id ,int page=1 ,int pageSize=5)
+        {
+            try
+            {
+                IQueryable<Article> query = _context.Article.Include(x => x.Category).Include(y => y.Comment).Where(z => z.CategoryId == id).OrderByDescending(x => x.PublishDate);
+                var queryResult = ArticlesPagination(query, page, pageSize);
+                var result = new
+                {
+                    TotalCount = queryResult.Item1,
+                    Articles = queryResult.Item2
+                };
 
+                return Ok(result);
+
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+    
+
+
+        }
         // GET: api/Articles/5
         [HttpGet("{id}")]
         public IActionResult GetArticle([FromRoute] int id)
         {
+            System.Threading.Thread.Sleep(1000);
             try
             {
                 var article = _context.Article.Include(x => x.Category).Include(y => y.Comment).FirstOrDefault(z => z.Id == id);
@@ -99,6 +125,8 @@ namespace muratulugBlogCore.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
 
 
         // PUT: api/Articles/5
@@ -175,6 +203,23 @@ namespace muratulugBlogCore.API.Controllers
         private bool ArticleExists(int id)
         {
             return _context.Article.Any(e => e.Id == id);
+        }
+        public System.Tuple<IEnumerable<ArticleResponse>, int> ArticlesPagination(IQueryable<Article> query, int page, int pageSize)
+        {
+                int totalCount = query.Count();
+                var articlesResponse = query.Skip((pageSize * (page - 1))).Take(pageSize).ToList().Select(x => new ArticleResponse()
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    ContentMain = x.ContentMain,
+                    ContentSummary = x.ContentSummary,
+                    Picture = x.Picture,
+                    ViewCount = x.ViewCount,
+                    CommentCount = x.Comment.Count,
+                    Category = new CategoryResponse() { Id = x.Category.Id, Name = x.Category.Name }
+                }); ;  
+
+                return new System.Tuple<IEnumerable<ArticleResponse>, int>(articlesResponse, totalCount);
         }
     }
 }
