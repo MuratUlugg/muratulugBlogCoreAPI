@@ -71,14 +71,15 @@ namespace muratulugBlogCore.API.Controllers
         [Route("GetArticleWithCategory/{id}/{page}/{pageSize}")]   // Tipe göre değil method'da göre erişim için route kullanıldı . 
         public IActionResult GetArticleWithCategory (int id ,int page=1 ,int pageSize=5)
         {
+            System.Threading.Thread.Sleep(1000);
             try
             {
                 IQueryable<Article> query = _context.Article.Include(x => x.Category).Include(y => y.Comment).Where(z => z.CategoryId == id).OrderByDescending(x => x.PublishDate);
                 var queryResult = ArticlesPagination(query, page, pageSize);
                 var result = new
                 {
-                    TotalCount = queryResult.Item1,
-                    Articles = queryResult.Item2
+                    TotalCount = queryResult.Item2,
+                    Articles = queryResult.Item1
                 };
 
                 return Ok(result);
@@ -88,9 +89,30 @@ namespace muratulugBlogCore.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-    
+        }
 
+        //localhost:port/api/article/GetArticleWithCategory/12/1/5
+        [HttpGet]
+        [Route("SearchArticle/{searchText}/{page}/{pageSize}")]
+        public IActionResult SearchArticle(string searchText,int page=1,int pageSize = 5)
+        {
+            try
+            {
+                IQueryable<Article> query;
+                query = _context.Article.Include(x => x.Category).Include(y => y.Comment).Where(z => z.Title.Contains(searchText)).OrderByDescending(f=>f.PublishDate);
+                var queryResult = ArticlesPagination(query, page, pageSize);
+                var result = new
+                {
+                    TotalCount = queryResult.Item2,
+                    Articles = queryResult.Item1
+                };
 
+               return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         // GET: api/Articles/5
         [HttpGet("{id}")]
