@@ -53,7 +53,7 @@ namespace muratulugBlogCore.API.Controllers
                 var result = new
                 {
                     TotalCount = totalCount,
-                    Article = articlesResponse
+                    Articles = articlesResponse
                 };
 
                 return Ok(result);
