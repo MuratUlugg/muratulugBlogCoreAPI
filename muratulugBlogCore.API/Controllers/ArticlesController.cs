@@ -93,7 +93,7 @@ namespace muratulugBlogCore.API.Controllers
 
         //localhost:port/api/article/GetArticleWithCategory/12/1/5
         [HttpGet]
-        [Route("SearchArticle/{searchText}/{page}/{pageSize}")]
+        [Route("SearchArticle/{SearchArticle}/{page}/{pageSize}")]
         public IActionResult SearchArticle(string searchText,int page=1,int pageSize = 5)
         {
             try
