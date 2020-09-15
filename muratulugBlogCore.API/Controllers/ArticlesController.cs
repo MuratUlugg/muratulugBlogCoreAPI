@@ -93,9 +93,10 @@ namespace muratulugBlogCore.API.Controllers
 
         //localhost:port/api/article/GetArticleWithCategory/12/1/5
         [HttpGet]
-        [Route("SearchArticle/{SearchArticle}/{page}/{pageSize}")]
+        [Route("SearchArticle/{searchText}/{page}/{pageSize}")]
         public IActionResult SearchArticle(string searchText,int page=1,int pageSize = 5)
         {
+            System.Threading.Thread.Sleep(1000);
             try
             {
                 IQueryable<Article> query;
@@ -114,6 +115,7 @@ namespace muratulugBlogCore.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         // GET: api/Articles/5
         [HttpGet("{id}")]
         public IActionResult GetArticle([FromRoute] int id)
@@ -148,8 +150,19 @@ namespace muratulugBlogCore.API.Controllers
             }
         }
 
+        //localhost:port/api/GetArticlesByMostView
+        [HttpGet]
+        [Route("GetArticlesByMostView")]
+        public IActionResult GetArticlesByMostView()
+        {
+            System.Threading.Thread.Sleep(1000);
+            var articles = _context.Article.OrderByDescending(x => x.ViewCount).Take(5).Select(x => new ArticleResponse() { 
+                Title=x.Title,
+                Id=x.Id
+            });
 
-
+            return Ok(articles);
+        }
 
         // PUT: api/Articles/5
         [HttpPut("{id}")]
@@ -228,6 +241,7 @@ namespace muratulugBlogCore.API.Controllers
         }
         public System.Tuple<IEnumerable<ArticleResponse>, int> ArticlesPagination(IQueryable<Article> query, int page, int pageSize)
         {
+                System.Threading.Thread.Sleep(500);
                 int totalCount = query.Count();
                 var articlesResponse = query.Skip((pageSize * (page - 1))).Take(pageSize).ToList().Select(x => new ArticleResponse()
                 {
