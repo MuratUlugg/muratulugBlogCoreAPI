@@ -290,5 +290,15 @@ namespace muratulugBlogCore.API.Controllers
 
                 return new System.Tuple<IEnumerable<ArticleResponse>, int>(articlesResponse, totalCount);
         }
+
+        [HttpGet]
+        [Route("ArticleViewCountUp/{id}")]
+        public IActionResult ArticleViewCountUp (int id)
+        {
+            Article article = _context.Article.Find(id);
+            article.ViewCount += 1;
+            _context.SaveChanges();
+            return Ok();
+        }
     }
 }
