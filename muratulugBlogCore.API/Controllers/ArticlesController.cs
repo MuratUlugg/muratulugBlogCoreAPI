@@ -180,6 +180,22 @@ namespace muratulugBlogCore.API.Controllers
             return Ok(query);
         }
 
+        [HttpGet]
+        [Route("getArticleArchiveList/{year}/{month}/{page}/{pageSize}")]
+        public IActionResult getArticleArchiveList(int year,int month,int page,int pageSize)
+        {
+            System.Threading.Thread.Sleep(1000);
+            IQueryable<Article> query;
+            query = _context.Article.Include(x => x.Category).Include(y => y.Comment).Where(z => z.PublishDate.Year == year && z.PublishDate.Month == month).OrderByDescending(f => f.PublishDate);
+            var queryResult = ArticlesPagination(query, page, pageSize);
+            var result = new
+            {
+                TotalCount = queryResult.Item2,
+                Articles = queryResult.Item1
+            };
+            return Ok(result);
+
+        }
 
         // PUT: api/Articles/5
         [HttpPut("{id}")]
