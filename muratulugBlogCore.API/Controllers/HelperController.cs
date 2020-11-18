@@ -13,6 +13,7 @@ namespace muratulugBlogCore.API.Controllers
         {
             try
             {
+                System.Threading.Thread.Sleep(2000);
                 MailMessage mailMessage = new MailMessage();
                 SmtpClient smtpClient = new SmtpClient("smtp.gmail.com");
                 mailMessage.From = new MailAddress("ulugyazilim@gmail.com");

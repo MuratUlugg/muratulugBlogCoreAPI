@@ -50,12 +50,14 @@ namespace muratulugBlogCore.API
             services.AddSwaggerGen( c => 
             {
                 c.SwaggerDoc(name: "v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "muratulugBlogCore.API", Version = "v1.000" });
+                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First()); //This line
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -64,14 +66,14 @@ namespace muratulugBlogCore.API
             {
                 app.UseHsts();
             }
+            app.UseDeveloperExceptionPage();
             //Swagger başla
-            app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
             //Swagger bitir
-            
+
             app.UseCors(); // Cors kullanmak için
             app.UseStaticFiles(); // Resimler veya herhangi bir statik dosya ile çalışabilmek için 
             app.UseHttpsRedirection();
